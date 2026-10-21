@@ -1,0 +1,29 @@
+resources:
+  jobs:
+    card_fraud_daily:
+      name: card-fraud-daily
+      tasks:
+        - task_key: generate_data
+          notebook_task:
+            notebook_path: /Workspace/Users/manu.sandoval.c67@gmail.com/card-fraud-lakehouse/notebooks/01_generate_data
+            source: WORKSPACE
+        - task_key: run_pipeline
+          depends_on:
+            - task_key: generate_data
+          pipeline_task:
+            pipeline_id: 382276c0-f8c6-45b7-aedd-f62c74f886e2
+        - task_key: train_model
+          depends_on:
+            - task_key: run_pipeline
+          notebook_task:
+            notebook_path: /Workspace/Users/manu.sandoval.c67@gmail.com/card-fraud-lakehouse/notebooks/02_train_model
+            source: WORKSPACE
+        - task_key: score_transactions
+          depends_on:
+            - task_key: train_model
+          notebook_task:
+            notebook_path: /Workspace/Users/manu.sandoval.c67@gmail.com/card-fraud-lakehouse/notebooks/03_score_transactions
+            source: WORKSPACE
+      queue:
+        enabled: true
+      performance_target: PERFORMANCE_OPTIMIZED
