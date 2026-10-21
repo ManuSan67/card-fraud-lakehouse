@@ -1,4 +1,4 @@
-"""Bronze layer: raw JSON files ingested incrementally with Auto Loader."""
+
 from pyspark import pipelines as dp
 from pyspark.sql import functions as F
 

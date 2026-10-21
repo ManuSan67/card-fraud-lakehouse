@@ -1,15 +1,3 @@
-"""Synthetic card-transaction generator (stdlib only, deterministic).
-
-Writes JSON-lines files into a landing folder, one transaction file per day,
-so Auto Loader can pick them up incrementally:
-
-    <root>/merchants/merchants.json
-    <root>/customers/customers_<date>.json      (initial load + daily updates)
-    <root>/transactions/transactions_<date>.json
-
-Every run replays customer state from day 0, so a given seed always produces
-the same files no matter how many runs it takes to write them.
-"""
 import json
 import math
 import os
