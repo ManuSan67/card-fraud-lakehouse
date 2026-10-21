@@ -2,6 +2,10 @@ resources:
   jobs:
     card_fraud_daily:
       name: card-fraud-daily
+      schedule:
+        quartz_cron_expression: 0 0 6 * * ?
+        timezone_id: America/Mexico_City
+        pause_status: PAUSED
       tasks:
         - task_key: generate_data
           notebook_task:

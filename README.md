@@ -5,7 +5,7 @@ incremental ingestion, a declarative pipeline with data quality rules, a star sc
 tracked in MLflow, a daily job and a monitoring dashboard.
 
 ![Dashboard](Dashboards.png)
-
+![Architecture](architecture.png)
 ## Architecture
 
 ```mermaid
