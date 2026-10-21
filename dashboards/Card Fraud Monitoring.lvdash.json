@@ -1,0 +1,439 @@
+{
+  "datasets": [
+    {
+      "name": "c42594d5",
+      "displayName": "kpis",
+      "queryLines": [
+        "SELECT\r\n",
+        "  COUNT(*)                                           AS transactions,\r\n",
+        "  ROUND(SUM(amount), 0)                              AS total_amount_mxn,\r\n",
+        "  SUM(CASE WHEN is_fraud THEN 1 ELSE 0 END)          AS fraud_transactions,\r\n",
+        "  ROUND(SUM(CASE WHEN is_fraud THEN amount END), 0)  AS fraud_amount_mxn,\r\n",
+        "  ROUND(100 * AVG(CASE WHEN is_fraud THEN 1 ELSE 0 END), 2) AS fraud_rate_pct\r\n",
+        "FROM fraud_lakehouse.gold.fact_transactions"
+      ]
+    },
+    {
+      "name": "a3faa457",
+      "displayName": "daily_trend",
+      "queryLines": [
+        "SELECT\r\n",
+        "  d.date,\r\n",
+        "  COUNT(*)                                                 AS transactions,\r\n",
+        "  SUM(CASE WHEN f.is_fraud THEN 1 ELSE 0 END)              AS fraud_transactions,\r\n",
+        "  ROUND(100 * AVG(CASE WHEN f.is_fraud THEN 1 ELSE 0 END), 2) AS fraud_rate_pct\r\n",
+        "FROM fraud_lakehouse.gold.fact_transactions f\r\n",
+        "JOIN fraud_lakehouse.gold.dim_date d ON f.date_key = d.date_key\r\n",
+        "GROUP BY d.date"
+      ]
+    },
+    {
+      "name": "d07006cf",
+      "displayName": "fraud_by_category",
+      "queryLines": [
+        "SELECT\r\n",
+        "  f.category,\r\n",
+        "  c.risk_group,\r\n",
+        "  COUNT(*)                                                 AS transactions,\r\n",
+        "  SUM(CASE WHEN f.is_fraud THEN 1 ELSE 0 END)              AS fraud_transactions,\r\n",
+        "  ROUND(100 * AVG(CASE WHEN f.is_fraud THEN 1 ELSE 0 END), 2) AS fraud_rate_pct\r\n",
+        "FROM fraud_lakehouse.gold.fact_transactions f\r\n",
+        "JOIN fraud_lakehouse.gold.dim_category c ON f.category = c.category\r\n",
+        "GROUP BY f.category, c.risk_group"
+      ]
+    },
+    {
+      "name": "4e1c6e1c",
+      "displayName": "data_quality",
+      "queryLines": [
+        "SELECT rule, COUNT(*) AS rejected_rows\r\n",
+        "FROM fraud_lakehouse.silver.transactions_quarantine\r\n",
+        "LATERAL VIEW explode(failed_rules) AS rule\r\n",
+        "GROUP BY rule"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "00d59831",
+      "displayName": "Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "transactions1",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c42594d5",
+                  "fields": [
+                    {
+                      "name": "sum(transactions)",
+                      "expression": "SUM(`transactions`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Transactions",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(transactions)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "fraud-transactions",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c42594d5",
+                  "fields": [
+                    {
+                      "name": "sum(fraud_transactions)",
+                      "expression": "SUM(`fraud_transactions`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Fraud transactions",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(fraud_transactions)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "1d8c3303",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c42594d5",
+                  "fields": [
+                    {
+                      "name": "sum(fraud_amount_mxn)",
+                      "expression": "SUM(`fraud_amount_mxn`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Fraud amount(MXN)",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(fraud_amount_mxn)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "fda80249",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "c42594d5",
+                  "fields": [
+                    {
+                      "name": "sum(fraud_rate_pct)",
+                      "expression": "SUM(`fraud_rate_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Fraud rate %",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(fraud_rate_pct)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "daily-fraud-rate",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a3faa457",
+                  "fields": [
+                    {
+                      "name": "date",
+                      "expression": "`date`"
+                    },
+                    {
+                      "name": "sum(fraud_rate_pct)",
+                      "expression": "SUM(`fraud_rate_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Daily fraud rate %",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "date",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(fraud_rate_pct)",
+                  "axis": {
+                    "title": "Fraud rate %"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 12,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "fraud-rate-by-category",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d07006cf",
+                  "fields": [
+                    {
+                      "name": "risk_group",
+                      "expression": "`risk_group`"
+                    },
+                    {
+                      "name": "category",
+                      "expression": "`category`"
+                    },
+                    {
+                      "name": "sum(fraud_rate_pct)",
+                      "expression": "SUM(`fraud_rate_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Fraud rate by category",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(fraud_rate_pct)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "risk_group",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "rejected-rows-quality-rule",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "4e1c6e1c",
+                  "fields": [
+                    {
+                      "name": "rule",
+                      "expression": "`rule`"
+                    },
+                    {
+                      "name": "sum(rejected_rows)",
+                      "expression": "SUM(`rejected_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Rejected rows by quality rule",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "rule",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(rejected_rows)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 7,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
