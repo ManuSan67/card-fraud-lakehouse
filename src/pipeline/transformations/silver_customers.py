@@ -18,6 +18,7 @@ def customers_changes():
 dp.create_streaming_table(
     name="silver.customers",
     comment="Customer history as SCD Type 2. One row per version, valid between __START_AT and __END_AT.",
+    table_properties={"delta.enableChangeDataFeed": "true"},
     expect_all_or_drop={"valid_customer_id": "customer_id IS NOT NULL"},
 )
 
