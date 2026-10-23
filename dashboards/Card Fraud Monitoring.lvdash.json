@@ -51,6 +51,30 @@
         "LATERAL VIEW explode(failed_rules) AS rule\r\n",
         "GROUP BY rule"
       ]
+    },
+    {
+      "name": "ba9d2d83",
+      "displayName": "quality_by_rule",
+      "queryLines": [
+        "SELECT\r\n",
+        "  run_date,\r\n",
+        "  expectation,\r\n",
+        "  sum(passed_records) AS passed,\r\n",
+        "  sum(failed_records) AS failed,\r\n",
+        "  round(100 * sum(failed_records) / nullif(sum(passed_records + failed_records), 0), 2) AS failed_pct\r\n",
+        "FROM fraud_lakehouse.gold.pipeline_quality_log\r\n",
+        "GROUP BY run_date, expectation"
+      ]
+    },
+    {
+      "name": "60da471d",
+      "displayName": "freshness",
+      "queryLines": [
+        "SELECT\r\n",
+        "  round((unix_timestamp(current_timestamp()) - unix_timestamp(max(_ingested_at))) / 3600, 1) AS hours_since_last_load,\r\n",
+        "  max(_ingested_at) AS last_load_at\r\n",
+        "FROM fraud_lakehouse.bronze.transactions"
+      ]
     }
   ],
   "pages": [
@@ -423,6 +447,202 @@
             "y": 7,
             "width": 6,
             "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "2592b5d8",
+      "displayName": "Pipeline health",
+      "layout": [
+        {
+          "widget": {
+            "name": "freshness",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "60da471d",
+                  "fields": [
+                    {
+                      "name": "sum(hours_since_last_load)",
+                      "expression": "SUM(`hours_since_last_load`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Hours since last load",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(hours_since_last_load)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "rejected-rows-by-rule",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ba9d2d83",
+                  "fields": [
+                    {
+                      "name": "expectation",
+                      "expression": "`expectation`"
+                    },
+                    {
+                      "name": "daily(run_date)",
+                      "expression": "DATE_TRUNC(\"DAY\", `run_date`)"
+                    },
+                    {
+                      "name": "sum(failed)",
+                      "expression": "SUM(`failed`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Rejected rows by rule",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "daily(run_date)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(failed)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "expectation",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 9,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "quality-by-rule-and-run",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ba9d2d83",
+                  "fields": [
+                    {
+                      "name": "run_date",
+                      "expression": "`run_date`"
+                    },
+                    {
+                      "name": "expectation",
+                      "expression": "`expectation`"
+                    },
+                    {
+                      "name": "passed",
+                      "expression": "`passed`"
+                    },
+                    {
+                      "name": "failed",
+                      "expression": "`failed`"
+                    },
+                    {
+                      "name": "failed_pct",
+                      "expression": "`failed_pct`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Quality by rule and run",
+                  "fields": []
+                }
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "run_date"
+                  },
+                  {
+                    "fieldName": "expectation"
+                  },
+                  {
+                    "fieldName": "passed"
+                  },
+                  {
+                    "fieldName": "failed"
+                  },
+                  {
+                    "fieldName": "failed_pct"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 8,
+            "height": 5
           }
         }
       ],
