@@ -2,6 +2,16 @@ resources:
   jobs:
     card_fraud_daily:
       name: card-fraud-daily
+      email_notifications:
+        on_failure:
+          - manu.sandoval.c67@gmail.com
+        on_duration_warning_threshold_exceeded:
+          - manu.sandoval.c67@gmail.com
+      health:
+        rules:
+          - metric: RUN_DURATION_SECONDS
+            op: GREATER_THAN
+            value: 900
       schedule:
         quartz_cron_expression: 0 0 6 * * ?
         timezone_id: America/Mexico_City
