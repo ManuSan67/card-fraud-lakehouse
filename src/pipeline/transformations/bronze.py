@@ -2,7 +2,7 @@
 from pyspark import pipelines as dp
 from pyspark.sql import functions as F
 
-LANDING = "/Volumes/fraud_lakehouse/raw/landing"
+LANDING = f"/Volumes/{spark.conf.get('catalog', 'fraud_lakehouse')}/raw/landing"
 
 
 def auto_load(folder, schema_hints):

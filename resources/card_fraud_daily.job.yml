@@ -2,6 +2,9 @@ resources:
   jobs:
     card_fraud_daily:
       name: card-fraud-daily
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
       email_notifications:
         on_failure:
           - manu.sandoval.c67@gmail.com
@@ -19,25 +22,22 @@ resources:
       tasks:
         - task_key: generate_data
           notebook_task:
-            notebook_path: /Workspace/Users/manu.sandoval.c67@gmail.com/card-fraud-lakehouse/notebooks/01_generate_data
-            source: WORKSPACE
+            notebook_path: ../notebooks/01_generate_data.ipynb
         - task_key: run_pipeline
           depends_on:
             - task_key: generate_data
           pipeline_task:
-            pipeline_id: 382276c0-f8c6-45b7-aedd-f62c74f886e2
+            pipeline_id: ${resources.pipelines.card_fraud_pipeline.id}
         - task_key: train_model
           depends_on:
             - task_key: run_pipeline
           notebook_task:
-            notebook_path: /Workspace/Users/manu.sandoval.c67@gmail.com/card-fraud-lakehouse/notebooks/02_train_model
-            source: WORKSPACE
+            notebook_path: ../notebooks/02_train_model.ipynb
         - task_key: score_transactions
           depends_on:
             - task_key: train_model
           notebook_task:
-            notebook_path: /Workspace/Users/manu.sandoval.c67@gmail.com/card-fraud-lakehouse/notebooks/03_score_transactions
-            source: WORKSPACE
+            notebook_path: ../notebooks/03_score_transactions.ipynb
       queue:
         enabled: true
       performance_target: PERFORMANCE_OPTIMIZED

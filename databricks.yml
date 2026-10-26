@@ -1,0 +1,21 @@
+bundle:
+  name: card-fraud-lakehouse
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    default: fraud_lakehouse
+
+targets:
+  dev:
+    mode: development
+    default: true
+    variables:
+      catalog: fraud_lakehouse_dev
+
+  prod:
+    mode: production
+    workspace:
+      root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

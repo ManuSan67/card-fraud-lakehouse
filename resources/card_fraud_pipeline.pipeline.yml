@@ -1,0 +1,12 @@
+resources:
+  pipelines:
+    card_fraud_pipeline:
+      name: card-fraud-pipeline
+      catalog: ${var.catalog}
+      schema: bronze
+      serverless: true
+      libraries:
+        - glob:
+            include: ../src/pipeline/transformations/**
+      configuration:
+        catalog: ${var.catalog}
