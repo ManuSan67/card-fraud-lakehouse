@@ -1,4 +1,5 @@
 # Card Fraud Lakehouse on Databricks
+[![ci](https://github.com/ManuSan67/card-fraud-lakehouse/actions/workflows/ci.yml/badge.svg)](https://github.com/ManuSan67/card-fraud-lakehouse/actions/workflows/ci.yml)
 
 End-to-end lakehouse for card fraud detection, built on Databricks Free Edition with synthetic data:
 incremental ingestion, a declarative pipeline with data quality rules, a star schema, a fraud model
